@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>わくわく算数ドリル</title>
+    <style>
+        :root {
+            --primary: #FF7043;
+            --secondary: #FFB74D;
+            --accent: #4DB6AC;
+            --bg: #FFF8E1;
+            --card-bg: #FFFFFF;
+            --text: #37474F;
+        }
+        * {
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 24px;
+            text-align: center;
+        }
+        h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .menu-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            margin: 10px 0;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #FFA726;
+            transition: 0.1s;
+        }
+        .menu-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .progress-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .progress {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .prev-btn-small {
+            background: #90A4AE;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .prev-btn-small:disabled {
+            background: #CFD8DC;
+            cursor: not-allowed;
+        }
+        .question-box {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 25px 0;
+            color: #263238;
+        }
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .choice-btn {
+            background: #E0F2F1;
+            border: 2px solid var(--accent);
+            color: #00796B;
+            padding: 18px 10px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .choice-btn.selected {
+            background: var(--accent);
+            color: white;
+            border-color: #00796B;
+            box-shadow: 0 0 8px rgba(77, 182, 172, 0.6);
+        }
+        .action-row {
+            display: flex;
+            gap: 10px;
+        }
+        .ok-btn {
+            flex: 1;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #D84315;
+            transition: 0.1s;
+        }
+        .ok-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .ok-btn:disabled {
+            background: #FFCCBC;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .result-score {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 15px 0;
+        }
+        .result-stamp {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .stamp-hanamaru { background: #FFEBEE; color: #D32F2F; border: 2px dashed #D32F2F; }
+        .stamp-nijumaru { background: #FFF3E0; color: #E65100; border: 2px dashed #E65100; }
+        .stamp-maru { background: #E8F5E9; color: #2E7D32; border: 2px dashed #2E7D32; }
+        .stamp-ganbarou { background: #ECEFF1; color: #455A64; border: 2px dashed #455A64; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- メニュー画面 -->
+    <div id="menu-screen" class="screen active">
+        <h1>🌟 わくわく算数ドリル 🌟</h1>
+        <p style="margin-bottom: 20px; color: #666;">やりたいドリルをえらんでね！</p>
+        <button class="menu-btn" onclick="startDrill(1)">➕ たし算（一桁 ＋ 一桁）</button>
+        <button class="menu-btn" onclick="startDrill(2)">➕ たし算２（一桁 ＋ 二桁）</button>
+        <button class="menu-btn" onclick="startDrill(3)">➕ たし算３（二桁 ＋ 二桁）</button>
+        <button class="menu-btn" onclick="startDrill(4)">➖ ひき算（一桁）</button>
+        <button class="menu-btn" onclick="startDrill(5)">➖ ひき算２（二桁 － 一桁）</button>
+        <button class="menu-btn" onclick="startDrill(6)">➖ ひき算３（二桁 － 二桁）</button>
+    </div>
+
+    <!-- クイズ画面 -->
+    <div id="quiz-screen" class="screen">
+        <div class="progress-area">
+            <button class="prev-btn-small" id="prev-btn" onclick="prevQuestion()">⬅️ まえの問題</button>
+            <div class="progress" id="progress-text">もんだい 1 / 10</div>
+        </div>
+        <div class="question-box" id="question-text">3 + 5 = ?</div>
+        <div class="choices-grid" id="choices-grid">
+            <!-- 選択肢が動的に入ります -->
+        </div>
+        <div class="action-row">
+            <button class="ok-btn" id="ok-btn" onclick="submitAnswer()" disabled>OK</button>
+        </div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="result-screen" class="screen">
+        <h1>✨ けっか発表 ✨</h1>
+        <div class="result-score" id="score-text">100点</div>
+        <div id="stamp-container"></div>
+        <div style="margin-top: 20px;">
+            <button class="menu-btn" onclick="showMenu()" style="background: var(--primary); box-shadow: 0 4px 0 #D84315;">メニューにもどる</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 1;
+    let questions = [];
+    let currentIndex = 0;
+    let userAnswers = []; // ユーザーの回答履歴を保持
+    let selectedChoice = null; // 現在選択中の値
+
+    function rand(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function startDrill(mode) {
+        currentMode = mode;
+        questions = generateQuestions(mode);
+        currentIndex = 0;
+        userAnswers = new Array(10).fill(null);
+        
+        document.getElementById('menu-screen').classList.remove('active');
+        document.getElementById('quiz-screen').classList.add('active');
+        showQuestion();
+    }
+
+    function generateQuestions(mode) {
+        let list = [];
+        for (let i = 0; i < 10; i++) {
+            let a, b, ans, op;
+            if (mode === 1) {
+                a = rand(1, 9); b = rand(1, 9); op = '+'; ans = a + b;
+            } else if (mode === 2) {
+                a = rand(1, 9); b = rand(10, 90); op = '+'; ans = a + b;
+            } else if (mode === 3) {
+                a = rand(10, 89); b = rand(10, 89); op = '+'; ans = a + b;
+            } else if (mode === 4) {
+                a = rand(2, 9); b = rand(1, a); op = '-'; ans = a - b;
+            } else if (mode === 5) {
+                a = rand(10, 99); b = rand(1, 9);
+                if (a < b) { let tmp = a; a = b; b = tmp; }
+                op = '-'; ans = a - b;
+            } else if (mode === 6) {
+                a = rand(15, 99); b = rand(10, a);
+                op = '-'; ans = a - b;
+            }
+
+            let choices = [ans];
+            while (choices.length < 4) {
+                let offset = rand(-5, 5);
+                let wrong = ans + offset;
+                if (wrong >= 0 && !choices.includes(wrong)) {
+                    choices.push(wrong);
+                }
+            }
+            choices.sort(() => Math.random() - 0.5);
+            list.push({ a, b, op, ans, choices });
+        }
+        return list;
+    }
+
+    function showQuestion() {
+        let q = questions[currentIndex];
+        document.getElementById('progress-text').innerText = `もんだい ${currentIndex + 1} / 10`;
+        document.getElementById('question-text').innerText = `${q.a} ${q.op} ${q.b} = ?`;
+
+        // 前へボタンの有効/無効
+        document.getElementById('prev-btn').disabled = (currentIndex === 0);
+
+        // すでに回答したことがある場合は、その選択肢を復元する
+        selectedChoice = userAnswers[currentIndex];
+
+        let grid = document.getElementById('choices-grid');
+        grid.innerHTML = '';
+        q.choices.forEach(val => {
+            let btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = val;
+            if (val === selectedChoice) {
+                btn.classList.add('selected');
+            }
+            btn.onclick = () => selectChoice(val, btn);
+            grid.appendChild(btn);
+        });
+
+        // 選択されているものがあればOKボタンを有効化
+        updateOkButton();
+    }
+
+    function selectChoice(val, btnElement) {
+        selectedChoice = val;
+        // すべてのボタンから選択状態を外す
+        let buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(b => b.classList.remove('selected'));
+        // 押されたボタンを選択状態にする
+        btnElement.classList.add('selected');
+        
+        updateOkButton();
+    }
+
+    function updateOkButton() {
+        let okBtn = document.getElementById('ok-btn');
+        if (selectedChoice !== null) {
+            okBtn.disabled = false;
+        } else {
+            okBtn.disabled = true;
+        }
+    }
+
+    function submitAnswer() {
+        if (selectedChoice === null) return;
+
+        // 回答を記録
+        userAnswers[currentIndex] = selectedChoice;
+        currentIndex++;
+
+        if (currentIndex >= 10) {
+            showResult();
+        } else {
+            showQuestion();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            showQuestion();
+        }
+    }
+
+    function showResult() {
+        // スコア計算
+        let score = 0;
+        for (let i = 0; i < 10; i++) {
+            if (userAnswers[i] === questions[i].ans) {
+                score += 10;
+            }
+        }
+
+        document.getElementById('quiz-screen').classList.remove('active');
+        document.getElementById('result-screen').classList.add('active');
+
+        document.getElementById('score-text').innerText = `${score}点`;
+
+        let stampContainer = document.getElementById('stamp-container');
+        let stampDiv = document.createElement('div');
+
+        if (score === 100) {
+            stampDiv.className = 'result-stamp stamp-hanamaru';
+            stampDiv.innerText = '💮 花丸 💮';
+        } else if (score === 90) {
+            stampDiv.className = 'result-stamp stamp-nijumaru';
+            stampDiv.innerText = '◎ 二重丸 ◎';
+        } else if (score === 80) {
+            stampDiv.className, stampDiv.className = 'result-stamp stamp-maru';
+            stampDiv.innerText = '〇 まる 〇';
+        } else {
+            stampDiv.className = 'result-stamp stamp-ganbarou';
+            stampDiv.innerText = '【がんばろう！！】';
+        }
+        stampContainer.innerHTML = '';
+        stampContainer.appendChild(stampDiv);
+    }
+
+    function showMenu() {
+        document.getElementById('result-screen').classList.remove('active');
+        document.getElementById('menu-screen').classList.add('active');
+    }
+</script>
+
+</body>
+</html>
